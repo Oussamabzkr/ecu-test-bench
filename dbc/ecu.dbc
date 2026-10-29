@@ -1,0 +1,21 @@
+VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: ECU BENCH
+
+BO_ 256 ENGINE_STATUS: 4 ECU
+ SG_ CoolantTemp : 0|8@1+ (1,-40) [-40|215] "degC" BENCH
+ SG_ FanState : 8|1@1+ (1,0) [0|1] "" BENCH
+ SG_ SensorValid : 9|1@1+ (1,0) [0|1] "" BENCH
+ SG_ AliveCounter : 12|4@1+ (1,0) [0|15] "" BENCH
+
+BO_ 768 SENSOR_INPUT: 2 BENCH
+ SG_ SimCoolantTemp : 0|8@1+ (1,-40) [-40|215] "degC" ECU
+ SG_ SimSensorValid : 8|1@1+ (1,0) [0|1] "" ECU
+
+BA_DEF_ BO_ "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_ "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 256 100;
