@@ -11,6 +11,11 @@ TRACE = []  # (requirement, test id, outcome)
 
 
 @pytest.fixture
+def channel():
+    return CHANNEL
+
+
+@pytest.fixture
 def ecu():
     e = SimulatedEcu(channel=CHANNEL)
     e.start()

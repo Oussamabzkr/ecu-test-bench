@@ -18,6 +18,7 @@ class SimulatedEcu:
     FAN_OFF_BELOW = 90
     MAX_VALID_TEMP = 150
     DTC_DEBOUNCE_S = 0.2
+    INPUT_TIMEOUT_S = 0.5
 
     def __init__(self, channel, interface="virtual", cycle_time=0.1):
         self.db = cantools.database.load_file(str(DBC_PATH))
@@ -36,6 +37,8 @@ class SimulatedEcu:
         self.alive = 0
         self.dtcs = {}              # dtc number -> status byte
         self.invalid_since = None
+        self.last_input = None      # time of the last valid SENSOR_INPUT
+        self.timed_out = False
         self.uds = UdsServer(self)
         # knobs used later for fault injection / defect demos
         self.tx_enabled = True
@@ -79,6 +82,17 @@ class SimulatedEcu:
                 self.fan_on = 0
             # 90..95 inclusive: keep previous state (REQ-006)
 
+    def check_input_timeout(self):
+        """REQ-015: after the first SENSOR_INPUT, silence for 500 ms means invalid sensor."""
+        if self.last_input is None or self.timed_out:
+            return
+        if time.monotonic() - self.last_input > self.INPUT_TIMEOUT_S:
+            self.timed_out = True
+            self.sensor_valid = 0
+            self.fan_on = 1  # fail-safe
+            if self.invalid_since is None:
+                self.invalid_since = time.monotonic()
+
     def update_dtc(self):
         """Store the DTC once the sensor has been invalid for more than 200 ms (REQ-008)."""
         since = self.invalid_since
@@ -106,13 +120,18 @@ class SimulatedEcu:
     def _rx_loop(self):
         while not self._stop.is_set():
             msg = self.bus.recv(timeout=0.05)
+            self.check_input_timeout()
             self.update_dtc()
             if msg is None or msg.arbitration_id != self.sensor_input.frame_id:
                 continue
-            try:
-                sig = self.sensor_input.decode(msg.data)
-            except Exception:  # e.g. wrong length: handled in the fault injection part
+            if len(msg.data) != self.sensor_input.length:  # REQ-014: wrong DLC is ignored
                 continue
+            try:
+                sig = self.sensor_input.decode(bytes(msg.data))
+            except Exception:
+                continue
+            self.last_input = time.monotonic()
+            self.timed_out = False
             self._apply_input(sig["SimCoolantTemp"], sig["SimSensorValid"])
 
     def _uds_loop(self):

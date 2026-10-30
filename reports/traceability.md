@@ -31,3 +31,10 @@
 | REQ-013 | tests/test_uds.py::test_security_access_correct_key | passed |
 | REQ-013 | tests/test_uds.py::test_security_access_locked_in_default_session | passed |
 | REQ-013 | tests/test_uds.py::test_send_key_without_seed | passed |
+| REQ-014 | tests/test_fault_injection.py::test_wrong_dlc_is_ignored[dlc1] | passed |
+| REQ-014 | tests/test_fault_injection.py::test_wrong_dlc_is_ignored[dlc8] | passed |
+| REQ-015 | tests/test_fault_injection.py::test_sensor_input_timeout_and_recovery | passed |
+| REQ-016 | tests/test_fault_injection.py::test_ecu_under_bus_load | passed |
+| REQ-017 | tests/test_fault_injection.py::test_malformed_isotp_frame_is_ignored[flowcontrol] | passed |
+| REQ-017 | tests/test_fault_injection.py::test_malformed_isotp_frame_is_ignored[length0] | passed |
+| REQ-017 | tests/test_fault_injection.py::test_malformed_isotp_frame_is_ignored[length15] | passed |

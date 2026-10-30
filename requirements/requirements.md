@@ -15,3 +15,7 @@
 | REQ-011 | UDS 0x19 02 lists the stored DTCs (3 bytes DTC + 1 byte status) | Functional |
 | REQ-012 | UDS negative responses: unsupported service 0x11, wrong length 0x13, unknown DID 0x31, unsupported sub-function 0x12, wrong key 0x35 | Negative |
 | REQ-013 | UDS 0x27 only in extended session (else NRC 0x7F); correct key returns 67 02; key without seed returns NRC 0x24 | Negative, state |
+| REQ-014 | SENSOR_INPUT frames with a DLC other than 2 shall be ignored; ECU state and transmission are unchanged | Fault injection |
+| REQ-015 | After the first SENSOR_INPUT, if none is received for 500 ms the ECU sets SensorValid = 0 and FanState = 1; it recovers when input returns | Fault injection (frame loss) |
+| REQ-016 | With at least 200 unrelated frames/s on the bus, ENGINE_STATUS max interval stays at or below 130 ms and UDS 0x10 answers within 50 ms | Robustness, timing |
+| REQ-017 | Malformed ISO-TP frames (invalid length, flow-control frame) shall get no UDS response, and the ECU keeps working | Negative, fault |
